@@ -1,0 +1,113 @@
+name: skill-web-browser
+version: 0.1.0
+mode: local_plugin
+entrypoint: src.skill_web_browser.main:Skill
+core_api: ">=1.0,<2.0"
+capabilities:
+  - id: web_browser.fetch
+    description: Fetch a browser target and extract readable content.
+    input_schema:
+      type: object
+      required: [target]
+      properties:
+        target:
+          type: string
+          description: "URL to fetch or navigate to"
+          format: uri
+        dry_run:
+          type: boolean
+          default: false
+        confirmed:
+          type: boolean
+          default: false
+        confirmation_token:
+          type: ["string", "null"]
+        policy_approved:
+          type: boolean
+          default: false
+        timeout_seconds:
+          type: integer
+          default: 30
+          minimum: 5
+          maximum: 120
+      additionalProperties: false
+    output_schema:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok, error, timeout, confirmation_required]
+        url:
+          type: ["string", "null"]
+          description: "Final URL after navigation (may differ from target due to redirects)"
+        title: { type: ["string", "null"] }
+        content: { type: ["string", "null"] }
+        status_code: { type: ["integer", "null"] }
+        preview: { type: object }
+        confirmation_token: { type: ["string", "null"] }
+        detail: { type: ["string", "null"] }
+    risk_level: low
+    confirmation_required: false
+    retry_policy: bounded_backoff
+    observability_events:
+      - web_browser.fetch
+  - id: web_browser.open_url
+    description: Open a browser URL or local file in the user's browser.
+    input_schema:
+      type: object
+      required: [target]
+      properties:
+        target:
+          type: string
+          description: "URL to fetch or navigate to"
+          format: uri
+        dry_run:
+          type: boolean
+          default: false
+        confirmed:
+          type: boolean
+          default: false
+        confirmation_token:
+          type: ["string", "null"]
+        policy_approved:
+          type: boolean
+          default: false
+        timeout_seconds:
+          type: integer
+          default: 30
+          minimum: 5
+          maximum: 120
+      additionalProperties: false
+    output_schema:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok, error, timeout, confirmation_required]
+        url:
+          type: ["string", "null"]
+          description: "Final URL after navigation (may differ from target due to redirects)"
+        title: { type: ["string", "null"] }
+        content: { type: ["string", "null"] }
+        status_code: { type: ["integer", "null"] }
+        preview: { type: object }
+        confirmation_token: { type: ["string", "null"] }
+        detail: { type: ["string", "null"] }
+    risk_level: low
+    confirmation_required: false
+    retry_policy: bounded_backoff
+    observability_events:
+      - web_browser.open_url
+permissions:
+  read_memory: false
+  write_memory: false
+  internet_access: true
+  file_write: false
+  external_actions: true
+healthcheck:
+  kind: python
+  target: src.skill_web_browser.main:healthcheck
+timeout_ms: 60000
+enabled_by_default: true
